@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Read The Millennial Deal</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; color: #f5f4f0; font-family: 'IBM Plex Mono', monospace; }
+    .bar {
+      position: sticky; top: 0; z-index: 10;
+      background: #0a0a0a; border-bottom: 1px solid #2a2a2a;
+      padding: 1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      font-size: 0.75rem; letter-spacing: 0.08em;
+    }
+    .bar a { color: #888; text-decoration: none; }
+    .bar a:hover { color: #f5f4f0; }
+    #pages { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+    #pages canvas { display: block; width: 100%; height: auto; margin: 0 auto 1.5rem; background: #fff; }
+    #status { text-align: center; color: #888; padding: 3rem 1rem; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <a href="index.html">← millennialdeal.com</a>
+    <a href="millennial_project_campaignfinal.pdf" download>Download PDF</a>
+  </div>
+
+  <div id="status">Loading document…</div>
+  <div id="pages"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const container = document.getElementById('pages');
+    const status = document.getElementById('status');
+
+    pdfjsLib.getDocument('millennial_project_campaignfinal.pdf').promise
+      .then(async (pdf) => {
+        for (let n = 1; n <= pdf.numPages; n++) {
+          const page = await pdf.getPage(n);
+          const viewport = page.getViewport({ scale: 2 }); // sharp on retina screens
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          container.appendChild(canvas);
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+          if (n === 1) status.style.display = 'none';
+        }
+      })
+      .catch(() => {
+        status.innerHTML = 'Couldn\'t load the document. <a href="millennial_project_campaignfinal.pdf" style="color:#f5f4f0">Open the PDF directly</a>.';
+      });
+  </script>
+</body>
+</html>
